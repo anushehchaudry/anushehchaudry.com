@@ -1,0 +1,27 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../layouts/Base.astro";
+import ProjectEntry from "../components/ProjectEntry.astro";
+import DetailToggle from "../components/DetailToggle.astro";
+import TopicPicker from "../components/TopicPicker.astro";
+
+const projects = (await getCollection("projects")).sort((a, b) => a.data.order - b.data.order);
+const present = [...new Set(projects.flatMap((p) => p.data.topics))];
+---
+
+<Base title="Projects" description="Projects by Anusheh Chaudry: AI for healthcare, LLM agents, medical imaging, and apps.">
+  <div class="row">
+    <div class="stamp"><span class="label">Index</span></div>
+    <div class="body">
+      <h1>Projects</h1>
+      <p class="lede">
+        Most of these sit where machine learning meets medicine. One is a recipe app.
+      </p>
+      <TopicPicker noun="Projects" present={present}><DetailToggle /></TopicPicker>
+    </div>
+  </div>
+
+  <div class="detailed">
+    {projects.map((entry, i) => <ProjectEntry entry={entry} number={i + 1} level={2} />)}
+  </div>
+</Base>

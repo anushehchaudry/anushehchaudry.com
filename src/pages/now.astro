@@ -1,0 +1,30 @@
+---
+import Base from "../layouts/Base.astro";
+
+// Update this page whenever things change. Bump the date below too.
+const updated = "Nov 2026";
+---
+
+<Base title="Now" description="What Anusheh Chaudry is focused on right now.">
+  <div class="row">
+    <div class="stamp">
+      <span class="label">Now</span><br />
+      <span class="note">updated {updated}</span>
+    </div>
+    <div class="body">
+      <h1>What I'm doing now</h1>
+      <h2>Working on</h2>
+      <ul>
+        <li>Helping teach CS 329Z: Engineering AI Agents, and mentoring its project teams</li>
+        <li>My master's in computer science at Stanford</li>
+      </ul>
+    </div>
+  </div>
+</Base>
+
+<style>
+  h2 { font-size: 1.3rem; margin-top: 1.75rem; }
+  ul { padding-left: 1.1rem; }
+  li { margin-bottom: 0.3rem; }
+  li::marker { content: "– "; color: var(--muted); }
+</style>

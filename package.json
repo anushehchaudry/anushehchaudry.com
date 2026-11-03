@@ -1,0 +1,17 @@
+{
+  "name": "anushehchaudry.com",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/rss": "4.0.12",
+    "@astrojs/sitemap": "3.7.4",
+    "@fontsource-variable/newsreader": "5.2.8",
+    "@fontsource/ibm-plex-mono": "5.2.7",
+    "astro": "5.18.2"
+  }
+}

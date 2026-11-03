@@ -1,0 +1,242 @@
+---
+import "@fontsource-variable/newsreader/opsz.css";
+import "@fontsource-variable/newsreader/opsz-italic.css";
+import "@fontsource/ibm-plex-mono/400.css";
+import "@fontsource/ibm-plex-mono/500.css";
+import "../styles/global.css";
+import { getCollection } from "astro:content";
+
+interface Props {
+  title?: string;
+  description?: string;
+  wideMargin?: boolean;  // wider margin column (blog posts, for sidenotes)
+  noindex?: boolean;     // keep this page out of search results
+}
+
+const {
+  title,
+  description = "Anusheh Chaudry is a machine learning engineer building LLM agents and inference infrastructure, formerly on AWS Bedrock, with a focus on ML for healthcare. Stanford CS.",
+  wideMargin = false,
+  noindex = false,
+} = Astro.props;
+
+const pageTitle = title ? `${title} · Anusheh Chaudry` : "Anusheh Chaudry · Machine Learning Engineer";
+// canonical URLs match the nav links (no trailing slash)
+const canonical = new URL(Astro.url.pathname.replace(/(.)\/$/, "$1"), Astro.site);
+const person = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Anusheh Chaudry",
+  url: "https://anushehchaudry.com/",
+  image: "https://anushehchaudry.com/og.jpg",
+  jobTitle: "Machine Learning Engineer",
+  email: "mailto:anushehchaudry@gmail.com",
+  alumniOf: { "@type": "CollegeOrUniversity", name: "Stanford University" },
+  knowsAbout: ["Machine learning", "LLM agents", "Inference infrastructure", "AWS Bedrock", "ML for healthcare", "Python", "PyTorch"],
+  sameAs: ["https://github.com/anushehchaudry", "https://www.linkedin.com/in/anushehchaudry"],
+};
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+
+// Writing joins the nav once there's at least one published post.
+const hasPosts = ((await getCollection("writing", ({ data }) => !data.draft)) ?? []).length > 0;
+
+const nav = [
+  { href: "/work", label: "Work" },
+  { href: "/projects", label: "Projects" },
+  { href: "/teaching", label: "Teaching" },
+  ...(hasPosts ? [{ href: "/writing", label: "Writing" }] : []),
+  { href: "/about", label: "About" },
+  { href: "/now", label: "Now" },
+];
+
+const year = new Date().getFullYear();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    {hasPosts && <link rel="alternate" type="application/rss+xml" title="Anusheh Chaudry — Writing" href="/rss.xml" />}
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={path === "/" || path === "/about" ? "profile" : "website"} />
+    <meta property="og:site_name" content="Anusheh Chaudry" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL("/og.jpg", Astro.site)} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Anusheh Chaudry in a Stanford graduation stole, beside a sandstone column" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={new URL("/og.jpg", Astro.site)} />
+    <script type="application/ld+json" set:html={JSON.stringify(person)} />
+    <meta name="theme-color" content="#f6f2e9" />
+    <!-- without JavaScript the detail toggle can't run, so show everything -->
+    <noscript><style>.detailed .d-deep { display: revert !important; }</style></noscript>
+    <!-- apply the remembered detail level before the page paints -->
+    <script is:inline>
+      try {
+        const d = localStorage.getItem("detail");
+        if (d === "skim" || d === "deep") document.documentElement.dataset.detail = d;
+      } catch {}
+    </script>
+  </head>
+  <body class:list={{ "wide-margin": wideMargin }}>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="masthead">
+      <div class="sheet">
+        <div class="row head-row">
+          <div class="stamp">
+            <span class="label">Vol. {year}</span>
+          </div>
+          <div class="body">
+            <a href="/" class="nameplate" aria-label="Anusheh Chaudry — home">
+              <span class="np-line"><span class="np-key">Name</span><span class="np-val np-name">Anusheh Chaudry</span></span>
+              <span class="np-line"><span class="np-key">Subject</span><span class="np-val">ML engineering: agents, health &amp; infrastructure</span></span>
+            </a>
+            <nav aria-label="Main">
+              <ul class="plain">
+                {nav.map((item) => (
+                  <li>
+                    <a
+                      href={item.href}
+                      aria-current={path === item.href || path.startsWith(item.href + "/") ? "page" : undefined}
+                    >{item.label}</a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main id="main" class="sheet">
+      <slot />
+    </main>
+
+    <footer class="sheet">
+      <div class="row foot-row">
+        <div class="stamp"><span class="label">Colophon</span></div>
+        <div class="body">
+          <p>
+            Set in Newsreader and IBM&nbsp;Plex&nbsp;Mono. Built with Astro.
+          </p>
+          <ul class="plain arrow-links">
+            <li><a href="mailto:anushehchaudry@gmail.com">Email</a></li>
+            <li><a href="https://github.com/anushehchaudry">GitHub</a></li>
+            <li><a href="https://www.linkedin.com/in/anushehchaudry">LinkedIn</a></li>
+            {hasPosts && <li><a href="/rss.xml">RSS</a></li>}
+          </ul>
+          <p class="label copy">© {year} Anusheh Chaudry</p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .skip {
+    position: absolute;
+    left: -999px;
+    top: 0.5rem;
+    background: var(--paper);
+    padding: 0.4rem 0.8rem;
+    z-index: 10;
+  }
+  .skip:focus { left: 0.5rem; }
+
+  /* graph paper behind the masthead only, fading out downward */
+  .masthead {
+    position: relative;
+    padding-top: 3.25rem;
+  }
+  .masthead > .sheet { padding-bottom: 3.5rem; }
+  .masthead::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 22px 22px;
+    -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent);
+    mask-image: linear-gradient(to bottom, #000 30%, transparent);
+    pointer-events: none;
+  }
+  .head-row { margin-bottom: 0; }
+
+  /* the nameplate: a notebook-cover label */
+  .nameplate {
+    display: grid; /* spans the full writing column */
+    gap: 0.35rem;
+    padding: 0.85rem 1.25rem 0.9rem;
+    border: 1px solid var(--ink);
+    outline: 1px solid var(--ink);
+    outline-offset: 3px;
+    border-radius: 10px;
+    background: var(--paper);
+    text-decoration: none;
+    color: var(--text);
+    margin: 0 4px 1.75rem;
+  }
+  .nameplate:hover { background: var(--paper); }
+  .np-line {
+    display: grid;
+    grid-template-columns: 4.75rem auto;
+    align-items: baseline;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 0.2rem;
+  }
+  .np-line:last-child { border-bottom: 0; padding-bottom: 0; }
+  .np-key {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .np-val { font-size: 1rem; color: var(--ink); }
+  .np-name { font-size: 1.35rem; font-weight: 500; letter-spacing: 0.005em; }
+
+  nav ul { display: flex; flex-wrap: wrap; gap: 0.25rem 1.6rem; }
+  nav a {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--muted);
+  }
+  nav a:hover { color: var(--ink); }
+  nav a[aria-current="page"] {
+    color: var(--ink);
+    text-decoration: underline wavy var(--pencil);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.35em;
+  }
+
+  footer { padding-top: 2.5rem; padding-bottom: 3rem; }
+  footer::before { display: none; }
+  .foot-row { border-top: 1px solid var(--rule); padding-top: 2rem; margin-bottom: 0; }
+  .foot-row p { font-size: 1rem; color: var(--muted); }
+  .copy { margin-top: 1.5rem; }
+
+  @media (max-width: 760px) {
+    .masthead { padding-top: 1.75rem; }
+    .masthead > .sheet { padding-bottom: 2.25rem; }
+    .head-row .stamp { display: none; }
+    .np-line { grid-template-columns: 4.25rem auto; }
+    .np-name { font-size: 1.2rem; }
+    nav ul { gap: 0 1.25rem; }
+    nav a { display: inline-block; padding: 0.7rem 0; font-size: 0.85rem; }
+    .np-key { font-size: 0.72rem; }
+  }
+</style>

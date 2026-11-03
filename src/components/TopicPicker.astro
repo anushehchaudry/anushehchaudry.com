@@ -1,0 +1,208 @@
+---
+// A sentence listing the page's topics. Everything shows by default; clicking a
+// topic marks it with a highlighter and narrows the page to entries
+// ([data-topics]) tagged with any marked topic. Click again to unmark.
+// The choice lives in the URL (?show=health,ml) and, per page, for the visit.
+// Rendered hidden and revealed by the script, so it never shows without JS.
+import { topics } from "../data/topics";
+
+interface Props {
+  noun: string;      // "Roles", "Projects"
+  present: string[]; // topic ids that occur on this page; only these are listed
+}
+
+const { noun, present } = Astro.props;
+const listed = topics.filter((t) => present.includes(t.id));
+const last = listed.length - 1;
+---
+
+<p class="label hint" data-filter-hint hidden>Tap a topic to see just those</p>
+<p class="sentence" role="group" aria-label="Show only a topic" hidden data-topic-list={listed.map((t) => t.id).join(",")}>
+  {noun} in{" "}
+  {listed.map((t, i) => (
+    <>
+      {i === last && "and "}
+      <button type="button" class="topic" data-topic={t.id} aria-pressed="false" style={`--hl: var(--hl-${t.id})`}>{t.label}</button>{i < last ? ", " : "."}
+    </>
+  ))}
+</p>
+<slot />
+<p class="note showing" data-showing hidden></p>
+<p class="sr-only" aria-live="polite" data-filter-status></p>
+
+<script>
+  const listed = document.querySelector<HTMLElement>("[data-topic-list]")?.dataset.topicList?.split(",") ?? [];
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>("[data-topic]")];
+  const entries = [...document.querySelectorAll<HTMLElement>("[data-topics]")];
+  const note = document.querySelector<HTMLElement>("[data-showing]");
+  const hint = document.querySelector<HTMLElement>("[data-filter-hint]");
+  const status = document.querySelector<HTMLElement>("[data-filter-status]");
+  const key = `show:${location.pathname}`; // each page remembers its own choice
+
+  function read(): Set<string> {
+    let raw = new URLSearchParams(location.search).get("show");
+    try { raw ??= sessionStorage.getItem(key); } catch {}
+    return new Set((raw ?? "").split(",").filter((t) => listed.includes(t)));
+  }
+
+  function save(picked: Set<string>) {
+    const value = picked.size === 0 ? null : [...picked].join(",");
+    try {
+      if (value === null) sessionStorage.removeItem(key);
+      else sessionStorage.setItem(key, value);
+    } catch {}
+    const url = new URL(location.href);
+    url.searchParams.delete("show");
+    // keep the commas readable in a shared link (?show=health,ml)
+    const query = [url.searchParams.toString(), value === null ? "" : `show=${value}`].filter(Boolean).join("&");
+    history.replaceState(null, "", `${url.pathname}${query ? `?${query}` : ""}${url.hash}`);
+  }
+
+  // fold an entry away (or back) by animating its height
+  function fold(el: HTMLElement, away: boolean, animate: boolean) {
+    const isAway = el.hidden || el.classList.contains("folding");
+    if (away === isAway) return;
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!animate || reduce) {
+      el.hidden = away;
+      el.inert = away;
+      el.classList.toggle("folding", away);
+      el.style.maxHeight = "";
+      return;
+    }
+    el.inert = away; // never leave focus inside an entry that's folding away
+    if (away) {
+      el.style.maxHeight = `${el.scrollHeight}px`;
+      void el.offsetHeight;
+      el.classList.add("folding");
+      el.addEventListener("transitionend", () => {
+        if (el.classList.contains("folding")) el.hidden = true;
+      }, { once: true });
+    } else {
+      el.hidden = false;
+      el.style.maxHeight = "0px";
+      void el.offsetHeight;
+      el.classList.remove("folding");
+      el.style.maxHeight = `${el.scrollHeight}px`;
+      el.addEventListener("transitionend", () => { el.style.maxHeight = ""; }, { once: true });
+    }
+  }
+
+  function render(picked: Set<string>, animate: boolean) {
+    for (const b of buttons) b.setAttribute("aria-pressed", String(picked.has(b.dataset.topic!)));
+
+    let shown = 0;
+    for (const el of entries) {
+      const tags = (el.dataset.topics ?? "").split(" ");
+      const keep = picked.size === 0 || tags.some((t) => picked.has(t));
+      fold(el, !keep, animate);
+      // swipe the title in the color of the first picked topic it matches
+      const color = picked.size > 0 ? listed.find((t) => picked.has(t) && tags.includes(t)) : undefined;
+      el.classList.toggle("marked", !!color);
+      if (color) el.style.setProperty("--swipe", `var(--hl-${color})`);
+      if (keep) shown++;
+    }
+
+    if (note) {
+      note.hidden = picked.size === 0;
+      note.replaceChildren();
+      if (picked.size > 0) {
+        const all = document.createElement("button");
+        all.type = "button";
+        all.textContent = "show all";
+        all.addEventListener("click", () => {
+          picked = new Set();
+          save(picked);
+          render(picked, true);
+        });
+        note.append(`Showing ${shown} of ${entries.length} · `, all);
+      }
+    }
+
+    if (animate && status) {
+      status.textContent = picked.size === 0 ? "Showing everything" : `Showing ${shown} of ${entries.length} entries`;
+    }
+  }
+
+  let picked = read();
+
+  document.querySelector<HTMLElement>("[data-topic-list]")!.hidden = false;
+  let hintSeen = false;
+  try { hintSeen = !!sessionStorage.getItem("filterHintSeen"); } catch {}
+  if (hint) hint.hidden = hintSeen;
+
+  for (const b of buttons) {
+    b.addEventListener("click", () => {
+      const t = b.dataset.topic!;
+      if (picked.has(t)) picked.delete(t);
+      else picked.add(t);
+      save(picked);
+      render(picked, true);
+      if (hint) hint.hidden = true;
+      try { sessionStorage.setItem("filterHintSeen", "1"); } catch {}
+    });
+  }
+
+  save(picked); // reflect a remembered choice in the address bar too
+  render(picked, false);
+</script>
+
+<style>
+  .hint { margin: 1.5rem 0 0.35rem; }
+  .hint + .sentence { margin-top: 0; }
+
+  .sentence {
+    margin: 1.5rem 0 0;
+    color: var(--text);
+    line-height: 1.75;
+  }
+
+  .topic {
+    font: inherit;
+    color: var(--ink);
+    border: 0;
+    padding: 0 0.12em;
+    margin: 0 -0.12em;
+    cursor: pointer;
+    text-decoration: underline dotted;
+    text-decoration-color: color-mix(in srgb, var(--ink) 45%, transparent);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.28em;
+    /* the highlighter swipe, hidden until picked */
+    background-color: transparent;
+    background-image: linear-gradient(var(--hl), var(--hl));
+    background-repeat: no-repeat;
+    background-position: 0 70%;
+    background-size: 0% 0.7em;
+    transition: background-size 0.25s ease-out;
+  }
+  .topic:hover { text-decoration-style: solid; text-decoration-color: var(--ink); }
+  .topic:focus-visible { outline: 2px solid var(--pencil); outline-offset: 2px; border-radius: 2px; }
+  .topic[aria-pressed="true"] {
+    background-size: 100% 0.7em;
+    text-decoration: none;
+  }
+
+  .showing { margin: 0.6rem 0 0; transform: none; }
+  .showing :global(button) {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .topic { transition: none; }
+  }
+  /* bigger tap areas on phones: an invisible hit area around each word,
+     so the sentence's line spacing doesn't change */
+  @media (max-width: 760px) {
+    .topic { position: relative; }
+    .topic::before { content: ""; position: absolute; inset: -0.6em -0.15em; }
+    .showing :global(button) { padding: 0.5rem 0.25rem; }
+  }
+</style>

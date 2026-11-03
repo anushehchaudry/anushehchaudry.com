@@ -1,0 +1,73 @@
+---
+import Base from "../layouts/Base.astro";
+import DetailToggle from "../components/DetailToggle.astro";
+import TopicPicker from "../components/TopicPicker.astro";
+import { jobs, education, skills } from "../data/experience";
+
+const present = [...new Set(jobs.flatMap((j) => j.topics))];
+---
+
+<Base title="Work" description="Where Anusheh Chaudry has worked: ML engineering, AWS Bedrock inference infrastructure, and healthcare AI.">
+  <div class="row">
+    <div class="stamp"><span class="label">Index</span></div>
+    <div class="body">
+      <h1>Work</h1>
+      <p class="lede">
+        Health ML first, then model-serving infrastructure at AWS, then agent products.
+      </p>
+      <TopicPicker noun="Roles" present={present}><DetailToggle /></TopicPicker>
+    </div>
+  </div>
+
+  <section class="detailed">
+    {jobs.map((job) => (
+      <article class="row job" data-topics={job.topics.join(" ")}>
+        <div class="stamp"><span class="label">{job.when}</span></div>
+        <div class="body">
+          <p class="label">{job.company}</p>
+          <h2>{job.role}</h2>
+          <p class="summary d-skim">{job.highlight}</p>
+          <p class="summary d-read" set:html={job.summary} />
+          <ul class="d-deep">
+            {job.points.map((p) => <li set:html={p} />)}
+          </ul>
+        </div>
+      </article>
+    ))}
+  </section>
+
+  <section>
+    <div class="row">
+      <div class="stamp"><h2 class="label">Education</h2></div>
+      <div class="body">
+        {education.map((e) => (
+          <div class="edu">
+            <p class="label">{e.school} · {e.when}</p>
+            <h3>{e.degree}</h3>
+            {e.note && <p class="edu-note">{e.note}</p>}
+            <p class="muted">{e.detail}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="stamp"><h2 class="label">Toolbox</h2></div>
+      <div class="body"><p class="tools">{skills}</p></div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .job h2 { font-size: 1.4rem; margin-bottom: 0.6rem; }
+  .summary { font-size: 1.05rem; margin-bottom: 0.6rem; }
+  :global(html[data-detail="deep"]) .summary { display: none; }
+  .job ul { padding-left: 1.1rem; margin: 0; }
+  .job li { margin-bottom: 0.55rem; font-size: 1.05rem; }
+  .job li::marker { content: "– "; color: var(--muted); }
+  .edu { margin-bottom: 1.6rem; }
+  .edu h3 { margin: 0.15rem 0 0.3rem; }
+  .edu p.muted { font-size: 1rem; }
+  .edu-note { font-size: 1rem; margin-bottom: 0.3rem; }
+  .tools { font-family: var(--mono); font-size: 0.85rem; line-height: 1.8; color: var(--muted); }
+</style>

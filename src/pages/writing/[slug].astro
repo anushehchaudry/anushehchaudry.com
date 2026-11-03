@@ -1,0 +1,83 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import Base from "../../layouts/Base.astro";
+
+export async function getStaticPaths() {
+  const posts = (await getCollection("writing", ({ data }) => !data.draft)) ?? [];
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+interface Props {
+  post: CollectionEntry<"writing">;
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const fmt = new Intl.DateTimeFormat("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
+---
+
+<Base title={post.data.title} description={post.data.description} wideMargin>
+  <article class="row post">
+    <div class="stamp">
+      <time class="label" datetime={post.data.date.toISOString()}>{fmt.format(post.data.date)}</time>
+    </div>
+    <div class="body">
+      <h1>{post.data.title}</h1>
+      <p class="lede">{post.data.description}</p>
+      <div class="prose"><Content /></div>
+      <p class="arrow-links back"><a href="/writing">All writing</a></p>
+    </div>
+  </article>
+</Base>
+
+<script>
+  // Footnotes become red-pencil notes in the margin, level with the line that
+  // cites them. On narrow screens they stay at the bottom of the post.
+  const post = document.querySelector<HTMLElement>(".post");
+  const wide = matchMedia("(min-width: 1100px)");
+
+  function placeSidenotes() {
+    if (!post) return;
+    post.querySelectorAll(".sidenote").forEach((n) => n.remove());
+    post.classList.toggle("has-sidenotes", wide.matches);
+    if (!wide.matches) return;
+
+    const top = post.getBoundingClientRect().top;
+    let lastBottom = 0;
+
+    for (const ref of post.querySelectorAll<HTMLAnchorElement>("a[data-footnote-ref]")) {
+      const target = document.getElementById(ref.hash.slice(1));
+      if (!target) continue;
+
+      const note = document.createElement("aside");
+      note.className = "sidenote note";
+      const num = document.createElement("span");
+      num.className = "sn-num";
+      num.textContent = ref.textContent;
+      note.append(num);
+      note.append(...target.cloneNode(true).childNodes);
+      note.querySelectorAll("[data-footnote-backref]").forEach((b) => b.remove());
+      post.append(note);
+
+      // line the note up with its reference, without overlapping the one above
+      const y = Math.max(ref.getBoundingClientRect().top - top, lastBottom + 14);
+      note.style.top = `${y}px`;
+      lastBottom = y + note.offsetHeight;
+    }
+  }
+
+  placeSidenotes();
+  wide.addEventListener("change", placeSidenotes);
+  document.fonts?.ready.then(placeSidenotes);
+  let t: number | undefined;
+  addEventListener("resize", () => {
+    clearTimeout(t);
+    t = window.setTimeout(placeSidenotes, 150);
+  });
+</script>
+
+<style>
+  .post { position: relative; }
+  .lede { margin-bottom: 2rem; }
+  .back { margin-top: 3rem; }
+</style>

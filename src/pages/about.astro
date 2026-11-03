@@ -1,0 +1,66 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base title="About" description="About Anusheh Chaudry: AI, healthcare, and infrastructure, plus teaching at Stanford.">
+  <div class="row">
+    <div class="stamp"><span class="label">About</span></div>
+    <div class="body">
+      <h1>Hi, I'm Anusheh Chaudry.</h1>
+
+      <figure class="photo">
+        <div class="print">
+          <img
+            src="/photos/cherry-blossoms.jpg"
+            alt="Anusheh in a burgundy coat, smiling under pink cherry blossoms by a river"
+            width="720"
+            height="900"
+          />
+        </div>
+      </figure>
+
+      <p>
+        I studied computer science at Stanford on the AI track,
+        and took a year off from my master's to work full time before coming back to finish it.
+      </p>
+      <p>
+        Most of my work has been where AI meets health. As an undergraduate I did medical imaging research,
+        predicting fractures and cardiovascular events from CT scans and health records.
+        During an internship at Inference Analytics I worked on radiology report models
+        and a patient-scheduling assistant for a hospital system.
+      </p>
+      <p>
+        After that I moved to infrastructure. At Amazon I worked on AWS Bedrock: first automating how agents
+        get deployed into customer accounts, then on the systems that serve foundation models.
+        At Artemis Software Works I built agent features for its product, Surfboard, including user memory and meeting briefings.
+      </p>
+      <p>
+        I've also taught at Stanford since 2022: <a href="/teaching">a course I brought back and redesigned, and now CS 329Z</a>.
+      </p>
+    </div>
+  </div>
+
+  <section>
+    <div class="row">
+      <div class="stamp"><span class="label">Elsewhere</span></div>
+      <div class="body">
+        <ul class="plain contact">
+          <li><span class="label">Email</span> <a href="mailto:anushehchaudry@gmail.com">anushehchaudry@gmail.com</a></li>
+          <li><span class="label">GitHub</span> <a href="https://github.com/anushehchaudry">anushehchaudry</a></li>
+          <li><span class="label">LinkedIn</span> <a href="https://www.linkedin.com/in/anushehchaudry">in/anushehchaudry</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .body { display: flow-root; } /* keep the floated print inside the column */
+  .contact li {
+    display: grid;
+    grid-template-columns: 5.5rem auto;
+    align-items: baseline;
+    padding: 0.35rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+</style>

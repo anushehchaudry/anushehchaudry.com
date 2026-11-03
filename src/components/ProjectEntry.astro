@@ -1,0 +1,98 @@
+---
+import { render, type CollectionEntry } from "astro:content";
+
+interface Props {
+  entry: CollectionEntry<"projects">;
+  number: number;
+  level?: 2 | 3; // heading level for the title, so pages don't skip levels
+}
+
+const { entry, number, level = 3 } = Astro.props;
+const Heading = `h${level}` as "h2" | "h3";
+const { title, context, when, status, skim, role, deep = [], topics = [], tags, links, figure } = entry.data;
+const isDiagram = figure?.src.endsWith(".svg");
+// tape colors rotate so neighbouring prints don't match
+const tapes = ["var(--tape-1)", "var(--tape-2)", "var(--tape-3)"];
+const { Content } = await render(entry);
+const no = String(number).padStart(2, "0");
+---
+
+<article class="row entry" data-topics={topics.join(" ")}>
+  <div class="stamp">
+    <span class="label no">No. {no}</span>
+    {when && <span class="label when">{when}</span>}
+    {status && <span class="note status">{status}</span>}
+  </div>
+  <div class="body">
+    <p class="label context">{context}</p>
+    <Heading class="title">{title}</Heading>
+    <p class="skim d-skim">{skim}</p>
+    <div class="desc d-read"><Content /></div>
+    {figure && (
+      <figure class:list={["fig d-read", isDiagram ? "diagram" : "print"]} style={`--tape: ${tapes[number % tapes.length]}`}>
+        <div class="frame"><img src={figure.src} alt={figure.alt} loading="lazy" /></div>
+        <figcaption class="figcap">Fig. {number}: {figure.caption}</figcaption>
+      </figure>
+    )}
+    {deep.length > 0 && (
+      <ul class="deep d-deep">
+        {deep.map((d) => <li set:html={d} />)}
+      </ul>
+    )}
+    {role && (
+      <p class="role d-deep"><span class="note">My part:</span> {role}</p>
+    )}
+    {tags.length > 0 && <p class="tags d-deep">{tags.join(" · ")}</p>}
+    {links.length > 0 && (
+      <ul class="plain arrow-links">
+        {links.map((l) => <li><a href={l.href}>{l.label}<span class="sr-only"> for {title}</span></a></li>)}
+      </ul>
+    )}
+  </div>
+</article>
+
+<style>
+  .entry { margin-bottom: 2.75rem; }
+  .stamp { display: flex; flex-direction: column; gap: 0.15rem; }
+  .no { color: var(--ink); }
+  .status { margin-top: 0.2rem; }
+  .context { margin-bottom: 0.3rem; }
+  .title { font-size: 1.3rem; margin-bottom: 0.45rem; }
+  .desc :global(p) { margin-bottom: 0.6rem; }
+  .skim { margin-bottom: 0.6rem; }
+
+  .fig { margin: 0.9rem 0 1.1rem; }
+  .fig img { display: block; width: 100%; height: auto; }
+  .fig figcaption { margin-top: 0.55rem; }
+  /* diagrams sit directly on the paper */
+  .diagram .frame { max-width: 34rem; }
+  /* plots and images are taped in like prints */
+  .print .frame {
+    position: relative;
+    max-width: 30rem;
+    padding: 7px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 6px 14px -8px rgba(0, 0, 0, 0.22);
+    transform: rotate(-0.6deg);
+  }
+  .print .frame::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: 18%;
+    width: 4.5rem;
+    height: 1.3rem;
+    background: var(--tape);
+    transform: rotate(-5deg);
+    opacity: 0.85;
+  }
+  .role { font-size: 1.05rem; margin-bottom: 0.5rem; }
+  .deep { padding-left: 1.1rem; margin: 0 0 0.75rem; font-size: 1.02rem; }
+  .deep li { margin-bottom: 0.35rem; }
+  .deep li::marker { content: "– "; color: var(--muted); }
+  .role .note { transform: none; font-size: 1rem; margin-right: 0.15rem; }
+
+  @media (max-width: 760px) {
+    .stamp { flex-direction: row; gap: 0.75rem; }
+  }
+</style>

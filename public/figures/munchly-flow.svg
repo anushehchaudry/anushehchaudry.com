@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 170" font-family="IBM Plex Mono, ui-monospace, monospace" font-size="13" fill="#1f2b47">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#1f2b47"/>
+    </marker>
+  </defs>
+  <g stroke="#1f2b47" stroke-width="1.4" fill="none">
+    <rect x="8" y="30" width="120" height="50" rx="4"/>
+    <rect x="178" y="30" width="140" height="50" rx="4" stroke="#b4442c"/>
+    <rect x="368" y="30" width="120" height="50" rx="4"/>
+    <rect x="368" y="112" width="120" height="44" rx="4"/>
+    <rect x="530" y="30" width="122" height="50" rx="4"/>
+    <path d="M128 55 L176 55" marker-end="url(#a)"/>
+    <path d="M318 55 L366 55" marker-end="url(#a)"/>
+    <path d="M488 55 L528 55" marker-end="url(#a)"/>
+    <path d="M428 80 L428 110" marker-end="url(#a)"/>
+  </g>
+  <text x="68" y="51" text-anchor="middle">your pantry</text>
+  <text x="68" y="68" text-anchor="middle" font-size="11" fill="#6b675f">what you have</text>
+  <text x="248" y="51" text-anchor="middle" fill="#b4442c">recipe search</text>
+  <text x="248" y="68" text-anchor="middle" font-size="11" fill="#6b675f">Spoonacular API</text>
+  <text x="428" y="51" text-anchor="middle">recipes</text>
+  <text x="428" y="68" text-anchor="middle" font-size="11" fill="#6b675f">details, steps</text>
+  <text x="591" y="51" text-anchor="middle">saved</text>
+  <text x="591" y="68" text-anchor="middle" font-size="11" fill="#6b675f">favorites</text>
+  <text x="428" y="131" text-anchor="middle">grocery list</text>
+  <text x="428" y="147" text-anchor="middle" font-size="11" fill="#6b675f">what's missing</text>
+  <text x="68" y="112" text-anchor="middle" font-size="11" fill="#6b675f">stored on</text>
+  <text x="68" y="126" text-anchor="middle" font-size="11" fill="#6b675f">the phone</text>
+</svg>

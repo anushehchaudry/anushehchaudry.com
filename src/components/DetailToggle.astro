@@ -1,0 +1,94 @@
+---
+// "Show a skim, a read, or the deep dive." A one-of-three choice (a radio
+// group for assistive tech); the chosen level is circled in red pencil.
+// Sets <html data-detail> and remembers the choice across visits.
+// Content opts in with .d-read and .d-deep inside a .detailed container.
+// Rendered hidden and revealed by the script, so it never shows without JS.
+const levels = [
+  { id: "skim", label: "skim", lead: "Show a " },
+  { id: "read", label: "read", lead: ", a " },
+  { id: "deep", label: "deep dive", lead: ", or the " },
+];
+---
+
+<p class="sentence detail" role="radiogroup" aria-label="Detail level" data-detail-group hidden>
+  {levels.map((l) => (
+    <>{l.lead}<button type="button" role="radio" data-detail-level={l.id} aria-checked="false" tabindex="-1">{l.label}</button></>
+  ))}.
+</p>
+<p class="sr-only" aria-live="polite" data-detail-status></p>
+
+<script>
+  const root = document.documentElement;
+  const group = document.querySelector<HTMLElement>("[data-detail-group]");
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>("[data-detail-level]")];
+  const status = document.querySelector<HTMLElement>("[data-detail-status]");
+  const said: Record<string, string> = {
+    skim: "Skim: one line for each entry",
+    read: "Read: a short summary for each entry",
+    deep: "Deep dive: full details for each entry",
+  };
+
+  function apply(level: string, announce = false) {
+    if (level === "read") delete root.dataset.detail;
+    else root.dataset.detail = level;
+    for (const b of buttons) {
+      const on = b.dataset.detailLevel === level;
+      b.setAttribute("aria-checked", String(on));
+      b.tabIndex = on ? 0 : -1; // roving tabindex: one tab stop for the group
+    }
+    try { localStorage.setItem("detail", level); } catch {}
+    if (announce && status) status.textContent = said[level] ?? "";
+  }
+
+  buttons.forEach((b, i) => {
+    b.addEventListener("click", () => apply(b.dataset.detailLevel ?? "read", true));
+    b.addEventListener("keydown", (e) => {
+      const step = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : e.key === "ArrowLeft" || e.key === "ArrowUp" ? -1 : 0;
+      if (!step) return;
+      e.preventDefault();
+      const next = buttons[(i + step + buttons.length) % buttons.length];
+      next.focus();
+      apply(next.dataset.detailLevel ?? "read", true);
+    });
+  });
+
+  if (group) group.hidden = false;
+  apply(root.dataset.detail ?? "read");
+</script>
+
+<style>
+  .detail { margin: 0.2rem 0 0; line-height: 1.75; }
+
+  button {
+    position: relative;
+    font: inherit;
+    color: var(--ink);
+    background: none;
+    border: 0;
+    padding: 0 0.1em;
+    cursor: pointer;
+    text-decoration: underline dotted;
+    text-decoration-color: color-mix(in srgb, var(--ink) 45%, transparent);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.28em;
+  }
+  button:hover { text-decoration-style: solid; text-decoration-color: var(--ink); }
+  button:focus-visible { outline: 2px solid var(--pencil); outline-offset: 2px; border-radius: 2px; }
+
+  /* the chosen level gets circled in red pencil */
+  button[aria-checked="true"] { text-decoration: none; }
+  button[aria-checked="true"]::after {
+    content: "";
+    position: absolute;
+    inset: -0.12em -0.22em -0.08em -0.22em;
+    border: 1.5px solid var(--pencil);
+    border-radius: 50% 46% 52% 48% / 55% 50% 48% 52%;
+    transform: rotate(-2.5deg);
+    pointer-events: none;
+  }
+  /* bigger tap areas on phones without changing line spacing */
+  @media (max-width: 760px) {
+    button::before { content: ""; position: absolute; inset: -0.6em -0.15em; }
+  }
+</style>

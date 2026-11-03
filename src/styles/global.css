@@ -1,0 +1,357 @@
+/* ------------------------------------------------------------
+   Lab notebook — design tokens
+   Paper, ink, graphite, and one red pencil for annotations.
+   ------------------------------------------------------------ */
+
+:root {
+  --paper: #f6f2e9;
+  --paper-edge: #ece6d8;
+  --ink: #1f2b47;          /* fountain-pen blue-black */
+  --text: #2b2a28;         /* graphite */
+  --muted: #6b675f;
+  --rule: #d8d0bf;         /* faint printed lines */
+  --grid: rgba(70, 98, 150, 0.09);
+  --margin-line: #d9907f;  /* the red line down a notebook page */
+  --pencil: #b4442c;       /* red-pencil annotations */
+  --highlight: rgba(244, 214, 92, 0.55);
+
+  /* highlighter colors, one per topic */
+  --hl-ml: rgba(140, 182, 238, 0.42);
+  --hl-health: rgba(242, 150, 165, 0.38);
+  --hl-infra: rgba(140, 205, 160, 0.45);
+  --hl-products: rgba(244, 214, 92, 0.55);
+  --hl-teaching: rgba(196, 164, 236, 0.42);
+
+  /* paper tape */
+  --tape-1: rgba(168, 196, 228, 0.78);
+  --tape-2: rgba(238, 182, 172, 0.78);
+  --tape-3: rgba(186, 212, 172, 0.8);
+
+  --sticky: #fbefb5;
+
+
+  --serif: "Newsreader Variable", "Iowan Old Style", Georgia, serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --margin: 9.5rem;        /* width of the left margin column */
+  --measure: 38rem;        /* comfortable line length */
+  --gap: 2rem;
+
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+/* [hidden] must win over layout rules like .row { display: grid } */
+[hidden] { display: none !important; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--paper);
+  /* very light paper tooth */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.4 0 0 0 0 0.3 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: 1.1875rem;
+  line-height: 1.6;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: var(--highlight); color: inherit; }
+
+/* ---------- type ---------- */
+
+h1, h2, h3 {
+  color: var(--ink);
+  font-weight: 450;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.6em;
+  text-wrap: balance;
+}
+h1 { font-size: clamp(2.1rem, 4.6vw, 3rem); }
+h2 { font-size: 1.65rem; }
+h3 { font-size: 1.3rem; }
+
+p { margin: 0 0 1em; text-wrap: pretty; }
+
+a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: color-mix(in srgb, var(--ink) 40%, transparent);
+  /* a highlighter swipe on hover */
+  background-image: linear-gradient(var(--highlight), var(--highlight));
+  background-size: 0% 0.55em;
+  background-position: 0 88%;
+  background-repeat: no-repeat;
+  transition: background-size 0.25s ease;
+}
+a:hover { background-size: 100% 0.55em; text-decoration-color: transparent; }
+a:focus-visible { outline: 2px solid var(--pencil); outline-offset: 3px; border-radius: 2px; }
+
+.label {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.lede {
+  font-size: clamp(1.35rem, 2.6vw, 1.6rem);
+  line-height: 1.4;
+  color: var(--ink);
+}
+
+.muted { color: var(--muted); }
+
+/* ---------- the sheet: margin column + writing column ---------- */
+
+.sheet {
+  position: relative;
+  max-width: calc(var(--margin) + var(--measure) + 6rem);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* the red margin rule, running the full height of the page */
+.sheet::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(1.5rem + var(--margin) - 1.1rem);
+  border-left: 1px solid var(--margin-line);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: var(--margin) minmax(0, var(--measure));
+  column-gap: 0;
+  margin-bottom: 3.25rem;
+}
+.row > .stamp {
+  padding-right: 2rem;
+  padding-top: 0.45em;
+}
+.row > .body { min-width: 0; }
+
+section + section { border-top: 1px solid var(--rule); padding-top: 3rem; }
+
+/* ---------- margin notes (red pencil) ---------- */
+
+.note {
+  display: inline-block;
+  font-style: italic;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  color: var(--pencil);
+  transform: rotate(-1.5deg);
+  transform-origin: left top;
+}
+
+/* ---------- photos: prints taped into the notebook ---------- */
+
+.photo {
+  float: right;
+  width: 15rem;
+  margin: 0.5rem 0 1.25rem 2rem;
+}
+.print {
+  position: relative;
+  padding: 8px 8px 10px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 6px 14px -6px rgba(0, 0, 0, 0.2);
+  transform: rotate(1.8deg);
+}
+/* a strip of paper tape across the top */
+.print::before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  width: 5.5rem;
+  height: 1.6rem;
+  transform: translateX(-50%) rotate(-4deg);
+  background: var(--photo-tape, var(--tape-1));
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.06);
+}
+.print img { display: block; width: 100%; height: auto; }
+.photo figcaption { margin-top: 0.9rem; }
+
+/* ---------- lists of entries ---------- */
+
+.plain { list-style: none; padding: 0; margin: 0; }
+
+.arrow-links { display: flex; flex-wrap: wrap; gap: 0.35rem 1.25rem; font-family: var(--mono); font-size: 0.8rem; }
+.arrow-links a::after { content: " →" / ""; } /* decorative: not read aloud */
+
+.tags { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); margin: 0.5rem 0 0.6rem; }
+
+/* ---------- prose (blog posts) ---------- */
+
+.prose h2 { margin-top: 2em; }
+.prose h3 { margin-top: 1.6em; }
+.prose blockquote {
+  margin: 1.5em 0;
+  padding-left: 1.25rem;
+  border-left: 2px solid var(--margin-line);
+  color: var(--muted);
+  font-style: italic;
+}
+.prose img { max-width: 100%; height: auto; border: 1px solid var(--rule); }
+.prose figure { margin: 2em 0; }
+.prose figcaption, .figcap { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); margin-top: 0.6rem; }
+.prose code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  background: var(--paper-edge);
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+}
+.prose pre {
+  font-size: 0.85rem;
+  line-height: 1.55;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+}
+.prose pre code { background: none; padding: 0; }
+.prose hr { border: 0; border-top: 1px solid var(--rule); margin: 2.5em 0; }
+.prose .footnotes { font-size: 0.95rem; color: var(--muted); border-top: 1px solid var(--rule); margin-top: 3rem; padding-top: 1rem; }
+.prose .footnotes h2 { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
+/* ---------- topic filter: entries fold away ---------- */
+/* TopicPicker.astro animates max-height, then sets [hidden]. */
+
+[data-topics] {
+  transition: max-height 0.35s ease, opacity 0.25s ease, margin 0.35s ease, padding 0.35s ease;
+}
+[data-topics].folding {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* ---------- detail level: Skim / Read / Deep dive ---------- */
+/* Inside a .detailed container, .d-skim shows only in Skim, .d-read in Read
+   and Deep dive, .d-deep only in Deep dive. Read is the default. */
+
+.d-skim,
+.d-deep { display: none; } /* outside the toggle (e.g. Home), show the Read level */
+
+/* key phrases are wrapped in <mark>. They look like plain text everywhere
+   except Read and Deep dive on Work and Projects, where they get a swipe of
+   highlighter, a little uneven at the ends like the real thing. */
+mark { background: none; color: inherit; }
+.detailed mark {
+  background-image: linear-gradient(100deg,
+    transparent 0.15em, var(--highlight) 0.3em,
+    var(--highlight) calc(100% - 0.35em), transparent calc(100% - 0.1em));
+  background-repeat: no-repeat;
+  background-size: 100% 0.72em;
+  background-position: 0 65%;
+  padding: 0 0.12em;
+  margin: 0 -0.12em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+html[data-detail="skim"] .detailed mark { background: none; }
+
+/* entries matching a picked topic get a swipe of that topic's highlighter */
+[data-topics].marked :is(.title, h2) {
+  background-image: linear-gradient(var(--swipe), var(--swipe));
+  background-repeat: no-repeat;
+  background-size: 100% 0.5em;
+  background-position: 0 82%;
+  width: fit-content;
+}
+html[data-detail="skim"] .detailed .d-skim { display: revert; }
+html[data-detail="deep"] .detailed .d-deep { display: revert; }
+html[data-detail="skim"] .detailed .d-read { display: none; }
+
+/* ---------- margin sidenotes (blog posts) ---------- */
+
+.sidenote {
+  position: absolute;
+  left: 0;
+  width: calc(var(--margin) - 2.25rem);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+.sidenote p { display: inline; margin: 0; }
+.sidenote .sn-num { font-style: normal; font-family: var(--mono); font-size: 0.7rem; margin-right: 0.2rem; }
+.has-sidenotes .footnotes { display: none; }
+.prose sup a {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--pencil);
+  text-decoration: none;
+  padding: 0 0.1em;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- large screens: scale the whole page up ---------- */
+/* Everything is sized in rem, so raising the root size grows type, margin,
+   and column together; the writing column also widens a little. */
+
+@media (min-width: 1200px) {
+  html { font-size: 17px; }
+  :root { --margin: 11.5rem; --measure: 43rem; }
+}
+@media (min-width: 1500px) {
+  html { font-size: 19px; }
+  :root { --margin: 12rem; --measure: 43rem; }
+}
+
+/* a wider margin on blog posts, so sidenotes have room */
+@media (min-width: 1100px) {
+  body.wide-margin { --margin: 13rem; }
+}
+@media (min-width: 1500px) {
+  body.wide-margin { --margin: 14.5rem; }
+}
+
+/* ---------- small screens: margin folds into the page ---------- */
+
+@media (max-width: 760px) {
+  body { font-size: 1.0625rem; }
+  .sheet { padding: 0 1rem; }
+  .sheet::before { left: 0.45rem; }
+  .row { grid-template-columns: minmax(0, 1fr); margin-bottom: 2.5rem; }
+  .row > .stamp { padding: 0 0 0.5rem; }
+  .note { transform: none; }
+  .photo { float: none; width: min(16rem, 80%); margin: 0.75rem 0 1.5rem; }
+  .label { font-size: 0.8rem; letter-spacing: 0.05em; }
+  .arrow-links a { display: inline-block; padding: 0.5rem 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  a { transition: none; }
+}
