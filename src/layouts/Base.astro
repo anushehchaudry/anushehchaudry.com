@@ -15,7 +15,7 @@ interface Props {
 
 const {
   title,
-  description = "Anusheh Chaudry is a machine learning engineer building LLM agents and inference infrastructure, formerly on AWS Bedrock, with a focus on ML for healthcare. Stanford CS.",
+  description = "Anusheh Chaudry is a machine learning engineer working in applied AI: LLM agents and inference infrastructure, formerly on AWS Bedrock, with a focus on healthcare. Stanford CS.",
   wideMargin = false,
   noindex = false,
 } = Astro.props;
@@ -32,7 +32,7 @@ const person = {
   jobTitle: "Machine Learning Engineer",
   email: "mailto:anushehchaudry@gmail.com",
   alumniOf: { "@type": "CollegeOrUniversity", name: "Stanford University" },
-  knowsAbout: ["Machine learning", "LLM agents", "Inference infrastructure", "AWS Bedrock", "ML for healthcare", "Python", "PyTorch"],
+  knowsAbout: ["Machine learning", "Applied AI", "LLM agents", "Inference infrastructure", "AWS Bedrock", "ML for healthcare", "Python", "PyTorch"],
   sameAs: ["https://github.com/anushehchaudry", "https://www.linkedin.com/in/anushehchaudry"],
 };
 const path = Astro.url.pathname.replace(/\/$/, "") || "/";
@@ -99,7 +99,7 @@ const year = new Date().getFullYear();
           <div class="body">
             <a href="/" class="nameplate" aria-label="Anusheh Chaudry — home">
               <span class="np-line"><span class="np-key">Name</span><span class="np-val np-name">Anusheh Chaudry</span></span>
-              <span class="np-line"><span class="np-key">Subject</span><span class="np-val">ML engineering: agents, health &amp; infrastructure</span></span>
+              <span class="np-line"><span class="np-key">Subject</span><span class="np-val">Applied AI: agents, health &amp; infrastructure</span></span>
             </a>
             <nav aria-label="Main">
               <ul class="plain">
