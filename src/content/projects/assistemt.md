@@ -1,6 +1,6 @@
 ---
 title: AssistEMT
-context: LLM assistant for emergency medicine · Salisbury Robotics Lab · Team of three
+context: LLM assistant for emergency medicine · With the Salisbury Robotics Lab · Team of three
 when: "2024"
 order: 7
 featured: true
