@@ -1,7 +1,7 @@
 ---
 title: How gene variants change a transplant drug's binding
 context: Computational biology · Team of two
-order: 4
+order: 6
 skim: "Simulated how gene variants change a transplant drug's binding, using AlphaFold and molecular docking."
 topics: [health]
 deep:

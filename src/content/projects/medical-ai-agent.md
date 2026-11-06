@@ -2,7 +2,7 @@
 title: Specialist diagnosis agents
 context: Multi-agent LLM system
 when: "2026"
-order: 2
+order: 9
 skim: "Specialist LLM agents read a medical report in parallel; a team agent combines their findings."
 topics: [ml, health]
 deep:

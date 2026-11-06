@@ -2,7 +2,7 @@
 title: AssistEMT
 context: LLM assistant for emergency medicine · With the Salisbury Robotics Lab · Team of three
 when: "2024"
-order: 7
+order: 2
 featured: true
 skim: "An LLM assistant for EMTs; GPT-4 with retrieval scored 88.3% on a written EMT exam."
 topics: [ml, health]

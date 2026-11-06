@@ -1,7 +1,7 @@
 ---
 title: Brain tumor segmentation in 3D MRI
 context: Research paper · Team of two
-order: 9
+order: 5
 skim: "Compared three 3D models for brain tumor segmentation; the attention U-Net reached 0.88 whole-tumor Dice."
 topics: [ml, health]
 deep:

@@ -2,7 +2,7 @@
 title: Munchly
 context: Mobile app · Team of four
 when: "2024"
-order: 5
+order: 8
 role: Wrote the app's foundation (search, pantry, and saved tabs), plus theming, the grocery list, and recipe details.
 skim: "A mobile app that turns what's in your pantry into recipes."
 topics: [products]

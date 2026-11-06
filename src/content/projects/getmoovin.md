@@ -2,7 +2,7 @@
 title: GetMoovin
 context: iOS health app · Team project
 when: "2023"
-order: 8
+order: 7
 skim: "An iPhone app that helps people walk more with daily step goals, progress charts, and nudges."
 topics: [health, products]
 role: Built the long-term progress chart and kept it in sync with each user's goal, added the motivational messages, and designed the app icon.

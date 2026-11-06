@@ -2,7 +2,7 @@
 title: Predicting Alzheimer's disease from a blood test
 context: Research paper · Team of three
 when: "2024"
-order: 6
+order: 4
 skim: "Blood-protein models that predict Alzheimer's disease with a test AUC of 0.84."
 topics: [ml, health]
 role: Built the SVM and neural-network models and wrote the related-work, methods, results, and conclusion sections.
